@@ -1,0 +1,313 @@
+{
+  "description": "Seeded vulnerable dependency versions for SM-02 (seeded-vulnerability recall). Each version was confirmed against the live OSV batch API when the fixture was created; advisory IDs are recorded, not guessed (TEST_STRATEGY \u00a73).",
+  "verified_at": "2026-10-26",
+  "verified_with": "https://api.osv.dev/v1/querybatch",
+  "seeded": [
+    {
+      "ecosystem": "npm",
+      "name": "axios",
+      "version": "0.21.0",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-3g43-6gmg-66jw",
+        "GHSA-3p68-rc4w-qgx5",
+        "GHSA-43fc-jf86-j433",
+        "GHSA-4w2v-q235-vp99",
+        "GHSA-5c9x-8gcm-mpgx",
+        "GHSA-62hf-57xw-28j9",
+        "GHSA-6chq-wfr3-2hj9",
+        "GHSA-7q8q-rj6j-mhjq",
+        "GHSA-898c-q2cr-xwhg",
+        "GHSA-cph5-m8f7-6c5x",
+        "GHSA-fvcv-3m26-pcqx",
+        "GHSA-hfxv-24rg-xrqf",
+        "GHSA-j5f8-grm9-p9fc",
+        "GHSA-jr5f-v2jv-69x6",
+        "GHSA-m7pr-hjqh-92cm",
+        "GHSA-mmx7-hfxf-jppx",
+        "GHSA-p92q-9vqr-4j8v",
+        "GHSA-pf86-5x62-jrwf",
+        "GHSA-pjwm-pj3p-43mv",
+        "GHSA-pmwg-cvhr-8vh7",
+        "GHSA-vf2m-468p-8v99",
+        "GHSA-w9j2-pvgh-6h63",
+        "GHSA-wf5p-g6vw-rhxx",
+        "GHSA-xhjh-pmcv-23jw",
+        "GHSA-xx6v-rp6x-q39c"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "express",
+      "version": "4.17.1",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-qw6h-vgh9-j6wx",
+        "GHSA-rv95-896h-c2vc"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "jsonwebtoken",
+      "version": "8.5.0",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-8cf7-32gw-wr33",
+        "GHSA-hjrf-2m68-5959",
+        "GHSA-qwph-4952-7xr6"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "lodash",
+      "version": "4.17.15",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-29mw-wpgm-hmr9",
+        "GHSA-35jh-r3h4-6jhm",
+        "GHSA-f23m-r3pf-42rh",
+        "GHSA-p6mc-m468-83gw",
+        "GHSA-r5fr-rjxr-66jc",
+        "GHSA-xxjr-mmjv-4gpg"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "minimist",
+      "version": "1.2.5",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-xvch-5gv4-984h"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "node-fetch",
+      "version": "2.6.0",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-r683-j2x4-v87g",
+        "GHSA-w7rc-rwvf-8q5r"
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "request",
+      "version": "2.88.2",
+      "manifest_path": "npm-app/package-lock.json",
+      "advisory_ids": [
+        "GHSA-p8p7-x288-28g6"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "flask",
+      "version": "1.1.2",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-68rp-wp8r-4726",
+        "GHSA-m2qf-hxjv-5gpq",
+        "PYSEC-2023-62",
+        "PYSEC-2026-2151"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "jinja2",
+      "version": "2.11.2",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-cpwx-vrp4-4pq7",
+        "GHSA-g3rq-g295-4j3m",
+        "GHSA-h5c8-rqwp-cp95",
+        "GHSA-h75v-3vvj-5mfj",
+        "GHSA-q2x7-8rv6-6q7h",
+        "PYSEC-2021-66",
+        "PYSEC-2026-1471",
+        "PYSEC-2026-1473",
+        "PYSEC-2026-1474",
+        "PYSEC-2026-1475"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "pyyaml",
+      "version": "5.3.1",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-8q59-q68h-6hv4",
+        "PYSEC-2021-142"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "requests",
+      "version": "2.25.0",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-9hjg-9r4m-mvj7",
+        "GHSA-9wx4-h78v-vm56",
+        "GHSA-gc5v-m9x4-r6x2",
+        "GHSA-j8r2-6x86-q33q",
+        "PYSEC-2023-74",
+        "PYSEC-2026-1872",
+        "PYSEC-2026-1873",
+        "PYSEC-2026-2275"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "urllib3",
+      "version": "1.26.4",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-2xpw-w6gg-jr37",
+        "GHSA-34jh-p97f-mpxf",
+        "GHSA-38jv-5279-wg99",
+        "GHSA-8988-9cw3-xx77",
+        "GHSA-g4mx-q9vg-27p4",
+        "GHSA-gm62-xv2j-4w53",
+        "GHSA-pq67-6m6q-mj2v",
+        "GHSA-q2q7-5pp4-w6pg",
+        "GHSA-qccp-gfcp-xxvc",
+        "GHSA-v845-jxx5-vc9f",
+        "GHSA-vxq7-64xx-v4gw",
+        "PYSEC-2021-108",
+        "PYSEC-2023-192",
+        "PYSEC-2023-212",
+        "PYSEC-2026-141",
+        "PYSEC-2026-1994",
+        "PYSEC-2026-1995",
+        "PYSEC-2026-1996",
+        "PYSEC-2026-1998",
+        "PYSEC-2026-1999",
+        "PYSEC-2026-4175",
+        "PYSEC-2026-4177"
+      ]
+    },
+    {
+      "ecosystem": "pypi",
+      "name": "django",
+      "version": "3.2",
+      "manifest_path": "python-app/requirements.txt",
+      "advisory_ids": [
+        "GHSA-2gwj-7jmv-h26r",
+        "GHSA-2hrw-hx67-34x6",
+        "GHSA-3h9f-r86x-qvjx",
+        "GHSA-53qw-q765-4fww",
+        "GHSA-68w8-qjq3-2gfm",
+        "GHSA-6cw3-g6wv-c2xv",
+        "GHSA-6w2r-r2m5-xq5w",
+        "GHSA-7h4p-27mh-hmrw",
+        "GHSA-7xr5-9hcq-chf9",
+        "GHSA-8c5j-9r9f-c6w8",
+        "GHSA-8cjm-8mp7-r2xf",
+        "GHSA-8qcx-xf44-272x",
+        "GHSA-8x94-hmjh-97hq",
+        "GHSA-923m-gv2p-w5qp",
+        "GHSA-95rw-fx8r-36v6",
+        "GHSA-crhf-3pfg-w68w",
+        "GHSA-frmv-pr5f-9mcr",
+        "GHSA-h7pc-vwp9-298g",
+        "GHSA-h8gc-pgj2-vjm3",
+        "GHSA-jh3w-4vvf-mjgr",
+        "GHSA-jrh2-hc4r-7jwx",
+        "GHSA-p64x-8rxx-wf6q",
+        "GHSA-p99v-5w3c-jqq9",
+        "GHSA-q238-5cxm-5c9h",
+        "GHSA-q2jf-h9jm-m7p4",
+        "GHSA-qm57-vhq3-3fwf",
+        "GHSA-qmf9-6jqf-j8fq",
+        "GHSA-qrw5-5h28-6cmg",
+        "GHSA-qw25-v68c-qjf3",
+        "GHSA-r3xc-prgr-mg9p",
+        "GHSA-rrqc-c2jx-6jgv",
+        "GHSA-rxjp-mfm9-w4wr",
+        "GHSA-v6rh-hp5x-86rv",
+        "GHSA-vm8q-m57g-pff3",
+        "GHSA-w24h-v9qh-8gxj",
+        "GHSA-wvqv-fj8w-qmhm",
+        "GHSA-xpfp-f569-q3p2",
+        "GHSA-xxj9-f6rv-m3x4",
+        "PYSEC-2021-109",
+        "PYSEC-2021-439",
+        "PYSEC-2021-7",
+        "PYSEC-2021-8",
+        "PYSEC-2021-98",
+        "PYSEC-2021-99",
+        "PYSEC-2022-1",
+        "PYSEC-2022-19",
+        "PYSEC-2022-190",
+        "PYSEC-2022-191",
+        "PYSEC-2022-2",
+        "PYSEC-2022-20",
+        "PYSEC-2022-213",
+        "PYSEC-2022-245",
+        "PYSEC-2022-3",
+        "PYSEC-2022-304",
+        "PYSEC-2023-100",
+        "PYSEC-2023-12",
+        "PYSEC-2023-13",
+        "PYSEC-2023-222",
+        "PYSEC-2023-225",
+        "PYSEC-2023-226",
+        "PYSEC-2023-61",
+        "PYSEC-2024-28",
+        "PYSEC-2024-47",
+        "PYSEC-2026-1297",
+        "PYSEC-2026-3717",
+        "PYSEC-2026-4035"
+      ]
+    }
+  ],
+  "deprecated": [
+    {
+      "ecosystem": "npm",
+      "name": "request",
+      "version": "2.88.2"
+    }
+  ],
+  "code_issues": [
+    {
+      "rule_id": "toolkit.js.eval",
+      "path": "npm-app/src/server.js"
+    },
+    {
+      "rule_id": "toolkit.js.sql-template-string",
+      "path": "npm-app/src/server.js"
+    },
+    {
+      "rule_id": "toolkit.js.weak-hash",
+      "path": "npm-app/src/server.js"
+    },
+    {
+      "rule_id": "toolkit.js.child-process-exec",
+      "path": "npm-app/src/server.js"
+    },
+    {
+      "rule_id": "toolkit.python.weak-hash",
+      "path": "python-app/app.py"
+    },
+    {
+      "rule_id": "toolkit.python.sql-string-format",
+      "path": "python-app/app.py"
+    },
+    {
+      "rule_id": "toolkit.python.subprocess-shell-true",
+      "path": "python-app/app.py"
+    },
+    {
+      "rule_id": "toolkit.python.yaml-unsafe-load",
+      "path": "python-app/app.py"
+    },
+    {
+      "rule_id": "toolkit.python.flask-debug",
+      "path": "python-app/app.py"
+    }
+  ],
+  "fake_secret": "FAKE_KEY_DO_NOT_USE_0000",
+  "prompt_injection_files": [
+    "npm-app/src/server.js",
+    "python-app/app.py"
+  ]
+}

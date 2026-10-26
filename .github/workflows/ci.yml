@@ -1,0 +1,102 @@
+# PR pipeline (HANDBOOK §5.10, DEPLOYMENT §9). Actions and tools are pinned to exact releases (NFR-SEC-07).
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17.6-alpine3.22
+        env:
+          POSTGRES_USER: toolkit
+          POSTGRES_PASSWORD: toolkit
+          POSTGRES_DB: postgres
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U toolkit" --health-interval 5s --health-timeout 5s --health-retries 20
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.4.0
+        with:
+          python-version-file: api/.python-version
+      - uses: astral-sh/setup-uv@v5.3.0
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy toolkit
+      - name: Tests with coverage (NFR-MNT-01)
+        run: uv run pytest --cov=toolkit --cov-report=term --cov-fail-under=70 -q
+      - name: OpenAPI drift (NFR-MNT-02)
+        run: uv run python ../tools/export_openapi.py --check
+      - name: Requirement coverage report
+        run: |
+          python ../tools/at_coverage.py --format markdown >> "$GITHUB_STEP_SUMMARY"
+      - name: Fixture manifest
+        run: python ../tools/verify_manifest.py ../examples/vulnerable-repo/fixture-manifest.json
+
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.2.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Build images
+        run: |
+          docker build -t sre-code-health/toolkit:ci api
+          docker build -t sre-code-health/web:ci web
+          docker build -t sre-code-health/demo-app:ci examples/demo-app
+
+  security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Trivy (dependencies; fail on critical)
+        run: |
+          docker run --rm -v "$PWD:/src:ro" aquasec/trivy:0.75.0 fs --scanners vuln \
+            --severity CRITICAL --exit-code 1 --ignorefile /src/.trivyignore \
+            --skip-dirs /src/examples --skip-dirs /src/docs /src
+      - name: Bundled Semgrep rules parse (exit 2 on any rule error)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.180.0 semgrep scan \
+            --config api/toolkit/scanning/rules/toolkit-rules.yml --metrics off --quiet --json \
+            --output /dev/null examples/vulnerable-repo
+      - name: Semgrep (source; fail on critical/ERROR)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.180.0 semgrep scan \
+            --config api/toolkit/scanning/rules/toolkit-rules.yml --severity ERROR --error --metrics off .

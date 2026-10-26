@@ -1,0 +1,191 @@
+# Bundled static-analysis rules (Apache-2.0, written for this project).
+# Using our own rules resolves UD-01 option (b): no dependency on Semgrep-maintained rules,
+# whose license restricts use in competing products/SaaS. Set SEMGREP_RULES=p/default to opt in
+# to the registry rule set instead (internal use only).
+rules:
+  # ------------------------------------------------------------------ Python
+  - id: toolkit.python.weak-hash
+    languages: [python]
+    severity: WARNING
+    message: Weak hash algorithm (MD5/SHA-1) used. Use SHA-256 or better for security-sensitive hashing.
+    metadata: { cwe: "CWE-327", category: security }
+    pattern-either:
+      - pattern: hashlib.md5(...)
+      - pattern: hashlib.sha1(...)
+      - pattern: hashlib.new("md5", ...)
+      - pattern: hashlib.new("sha1", ...)
+  - id: toolkit.python.eval-exec
+    languages: [python]
+    severity: ERROR
+    message: Dynamic code execution with eval/exec. Never evaluate untrusted input.
+    metadata: { cwe: "CWE-95", category: security }
+    pattern-either:
+      - pattern: eval($X)
+      - pattern: exec($X)
+  - id: toolkit.python.subprocess-shell-true
+    languages: [python]
+    severity: ERROR
+    message: subprocess call with shell=True. Pass an argument list and keep shell=False.
+    metadata: { cwe: "CWE-78", category: security }
+    pattern-either:
+      - pattern: subprocess.$F(..., shell=True, ...)
+      - pattern: os.system(...)
+      - pattern: os.popen(...)
+  - id: toolkit.python.sql-string-format
+    languages: [python]
+    severity: ERROR
+    message: SQL query built with string formatting. Use parameterized queries.
+    metadata: { cwe: "CWE-89", category: security }
+    pattern-either:
+      - pattern: $CUR.execute("..." % ...)
+      - pattern: $CUR.execute("...".format(...))
+      - pattern: $CUR.execute(f"...")
+      - pattern: $CUR.execute("..." + ...)
+  - id: toolkit.python.pickle-load
+    languages: [python]
+    severity: WARNING
+    message: Deserializing with pickle can execute arbitrary code. Do not unpickle untrusted data.
+    metadata: { cwe: "CWE-502", category: security }
+    pattern-either:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+  - id: toolkit.python.yaml-unsafe-load
+    languages: [python]
+    severity: WARNING
+    message: yaml.load without SafeLoader can construct arbitrary objects. Use yaml.safe_load.
+    metadata: { cwe: "CWE-502", category: security }
+    patterns:
+      - pattern: yaml.load(...)
+      - pattern-not: yaml.load(..., Loader=yaml.SafeLoader, ...)
+      - pattern-not: yaml.load(..., Loader=SafeLoader, ...)
+  - id: toolkit.python.requests-verify-false
+    languages: [python]
+    severity: WARNING
+    message: TLS certificate verification disabled (verify=False).
+    metadata: { cwe: "CWE-295", category: security }
+    pattern: requests.$M(..., verify=False, ...)
+  - id: toolkit.python.flask-debug
+    languages: [python]
+    severity: WARNING
+    message: Flask app run with debug=True exposes an interactive debugger.
+    metadata: { cwe: "CWE-489", category: security }
+    pattern: $APP.run(..., debug=True, ...)
+  - id: toolkit.python.hardcoded-secret
+    languages: [python]
+    severity: WARNING
+    message: Possible hard-coded credential. Load secrets from the environment or a secret store.
+    metadata: { cwe: "CWE-798", category: security }
+    patterns:
+      - pattern: $NAME = "$VALUE"
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(password|passwd|secret|api_?key|token|private_?key).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{8,}
+  - id: toolkit.python.bare-except-pass
+    languages: [python]
+    severity: INFO
+    message: Exception silently swallowed. Log or handle the error explicitly.
+    metadata: { category: correctness }
+    pattern: |
+      try:
+        ...
+      except:
+        pass
+  - id: toolkit.python.assert-for-validation
+    languages: [python]
+    severity: INFO
+    message: assert statements are removed with -O; do not use them for runtime validation.
+    metadata: { cwe: "CWE-617", category: correctness }
+    paths:
+      exclude: ["test_*.py", "*_test.py", "conftest.py", "tests/"]
+    pattern: assert $X
+  # ------------------------------------------------------------------ JavaScript / TypeScript
+  - id: toolkit.js.eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Dynamic code execution with eval/new Function. Never evaluate untrusted input.
+    metadata: { cwe: "CWE-95", category: security }
+    pattern-either:
+      - pattern: eval($X)
+      - pattern: new Function(...)
+      - pattern: setTimeout("...", ...)
+  - id: toolkit.js.child-process-exec
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: child_process.exec runs a shell. Use execFile/spawn with an argument array.
+    metadata: { cwe: "CWE-78", category: security }
+    pattern-either:
+      - pattern: require("child_process").exec(...)
+      - pattern: $CP.exec($CMD, ...)
+      - pattern: $CP.execSync($CMD, ...)
+  - id: toolkit.js.sql-template-string
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: SQL query built by string interpolation. Use parameterized queries.
+    metadata: { cwe: "CWE-89", category: security }
+    pattern-either:
+      - pattern: $DB.query(`...${$X}...`, ...)
+      - pattern: $DB.query("..." + $X, ...)
+      - pattern: $DB.execute(`...${$X}...`, ...)
+  - id: toolkit.js.weak-hash
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Weak hash algorithm (MD5/SHA-1). Use SHA-256 or better.
+    metadata: { cwe: "CWE-327", category: security }
+    pattern-either:
+      - pattern: $C.createHash("md5")
+      - pattern: $C.createHash("sha1")
+  - id: toolkit.js.inner-html
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Assigning to innerHTML/outerHTML or document.write can lead to XSS.
+    metadata: { cwe: "CWE-79", category: security }
+    pattern-either:
+      - pattern: $E.innerHTML = $V
+      - pattern: $E.outerHTML = $V
+      - pattern: document.write(...)
+  - id: toolkit.js.dangerously-set-inner-html
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: dangerouslySetInnerHTML bypasses React escaping. Sanitize or avoid it.
+    metadata: { cwe: "CWE-79", category: security }
+    pattern: <$EL dangerouslySetInnerHTML={...} />
+  - id: toolkit.js.tls-reject-unauthorized
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: TLS certificate verification disabled.
+    metadata: { cwe: "CWE-295", category: security }
+    pattern-either:
+      - pattern: |
+          { ..., rejectUnauthorized: false, ... }
+      - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+  - id: toolkit.js.hardcoded-secret
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Possible hard-coded credential. Load secrets from the environment or a secret store.
+    metadata: { cwe: "CWE-798", category: security }
+    patterns:
+      - pattern-either:
+          - pattern: const $NAME = "$VALUE"
+          - pattern: let $NAME = "$VALUE"
+          - pattern: var $NAME = "$VALUE"
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(password|passwd|secret|api_?key|token|private_?key).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{8,}
+  - id: toolkit.js.math-random-token
+    languages: [javascript, typescript]
+    severity: INFO
+    message: Math.random() is not cryptographically secure. Use crypto.randomUUID/getRandomValues for tokens.
+    metadata: { cwe: "CWE-338", category: security }
+    patterns:
+      - pattern: Math.random()
+      - pattern-inside: |
+          function $F(...) { ... }
+      - metavariable-regex:
+          metavariable: $F
+          regex: (?i).*(token|secret|password|id|key|nonce).*

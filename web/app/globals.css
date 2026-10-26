@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+/* Design tokens. Dark is the default; light follows the OS unless a data-theme is chosen;
+   increased contrast applies under prefers-contrast: more. Text/fill pairs are checked for
+   WCAG AA (4.5:1) in both themes: --accent is the text/tint shade, --primary the fill. */
+:root {
+  --canvas: #09090b;
+  --surface: #111113;
+  --surface-2: #19191c;
+  --surface-3: #232327;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.13);
+  --ink: #ededef;
+  --ink-2: #a1a1aa;
+  --ink-3: #8a8a93;
+  --accent: #9ba3ff;
+  --primary: #5e6ad2;
+  --primary-hover: #5360c4;
+  --on-primary: #ffffff;
+  --crit: #ff6b6b;
+  --danger: #d4343b;
+  --on-crit: #ffffff;
+  --ok: #4ccf8f;
+  --warn: #f5b544;
+  --c1: #8d95f7;
+  --c2: #3dd6a0;
+  --c3: #f5b942;
+  --c4: #e27bc0;
+  --c5: #5cc8ff;
+  --ctx1: #9a9aa6;
+  --ctx2: #6b6b78;
+  --grid: rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.55);
+  --tint: 12%;
+  --tint-border: 24%;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --canvas: #f7f7f8;
+    --surface: #ffffff;
+    --surface-2: #f3f3f5;
+    --surface-3: #e9e9ed;
+    --line: rgba(9, 9, 11, 0.08);
+    --line-strong: rgba(9, 9, 11, 0.14);
+    --ink: #09090b;
+    --ink-2: #52525b;
+    --ink-3: #62626b;
+    --accent: #4338ca;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --on-primary: #ffffff;
+    --crit: #c81e2a;
+    --danger: #c81e2a;
+    --on-crit: #ffffff;
+    --ok: #13753a;
+    --warn: #8a5a00;
+    --c1: #4f5bd5;
+    --c2: #0b7a5a;
+    --c3: #a75f00;
+    --c4: #b0307f;
+    --c5: #0a6fa8;
+    --ctx1: #5f5f6b;
+    --ctx2: #8a8a96;
+    --grid: rgba(9, 9, 11, 0.07);
+    --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-pop: 0 0 0 1px rgba(9, 9, 11, 0.08), 0 12px 32px rgba(16, 24, 40, 0.14);
+    --tint: 8%;
+    --tint-border: 22%;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --canvas: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f3f3f5;
+  --surface-3: #e9e9ed;
+  --line: rgba(9, 9, 11, 0.08);
+  --line-strong: rgba(9, 9, 11, 0.14);
+  --ink: #09090b;
+  --ink-2: #52525b;
+  --ink-3: #62626b;
+  --accent: #4338ca;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --on-primary: #ffffff;
+  --crit: #c81e2a;
+  --danger: #c81e2a;
+  --on-crit: #ffffff;
+  --ok: #13753a;
+  --warn: #8a5a00;
+  --c1: #4f5bd5;
+  --c2: #0b7a5a;
+  --c3: #a75f00;
+  --c4: #b0307f;
+  --c5: #0a6fa8;
+  --ctx1: #5f5f6b;
+  --ctx2: #8a8a96;
+  --grid: rgba(9, 9, 11, 0.07);
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-pop: 0 0 0 1px rgba(9, 9, 11, 0.08), 0 12px 32px rgba(16, 24, 40, 0.14);
+  --tint: 8%;
+  --tint-border: 22%;
+  color-scheme: light;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --ink-2: #c7c7d1;
+    --ink-3: #b4b4be;
+    --line: rgba(255, 255, 255, 0.2);
+    --line-strong: rgba(255, 255, 255, 0.32);
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-crit: var(--crit);
+  --color-danger: var(--danger);
+  --color-on-crit: var(--on-crit);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-hero: 14px;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+  --text-title: 15px;
+  --text-title--line-height: 1.4;
+  --text-title--letter-spacing: -0.01em;
+  --text-body: 14px;
+  --text-body--line-height: 1.5;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.45;
+  --spacing-18: 72px;
+}
+
+html,
+body {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.011em;
+  }
+
+  /* Data tables: quiet header row, hairline row dividers, roomy but dense cells. */
+  table thead th {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+    white-space: nowrap;
+  }
+  table tbody tr {
+    transition: background-color 120ms ease;
+  }
+  time,
+  dd,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Focus: a visible ring on every interactive element; inputs get a ring plus accent border. */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="option"]:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+  }
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.chrome {
+  user-select: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  font-feature-settings: normal;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--ink) 5%, transparent) 50%, transparent 80%);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-crit {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse-crit {
+  animation: pulse-crit 2s ease-in-out infinite;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.page-enter {
+  animation: enter 240ms var(--ease-out) both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.pop-in {
+  animation: pop-in 140ms var(--ease-out) both;
+}
+
+/* Thin, theme-aware scrollbars inside scroll regions. */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+@media (pointer: coarse) {
+  .hit {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

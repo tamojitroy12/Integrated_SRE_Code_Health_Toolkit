@@ -1,0 +1,102 @@
+[project]
+name = "toolkit"
+version = "1.0.0"
+description = "Integrated SRE + Code Health Toolkit: API and worker"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "fastapi>=0.120",
+    "uvicorn[standard]>=0.38",
+    "sqlalchemy>=2.0.40",
+    "alembic>=1.16",
+    "psycopg[binary,pool]>=3.2",
+    "pydantic>=2.11",
+    "pydantic-settings>=2.10",
+    "email-validator>=2.2",
+    "argon2-cffi>=25.1",
+    "pyjwt>=2.10",
+    "cryptography>=45",
+    "httpx>=0.28",
+    "prometheus-client>=0.22",
+    "packaging>=25",
+    "anthropic>=0.70",
+    "docker>=7.1",
+]
+
+[project.scripts]
+toolkit = "toolkit.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["toolkit"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "N", "PL", "C4"]
+ignore = [
+    "PLR0913",  # many-argument functions are common for typed builders
+    "PLR2004",  # magic values in comparisons
+    "PLR0911",
+    "PLR0912",
+    "PLR0915",
+    "S603",     # subprocess without shell: we only ever pass argv lists (core.process)
+    "RUF012",
+    "B008",     # FastAPI Depends() in defaults
+    "PLC0415",  # deliberate function-level imports that break import cycles / defer heavy modules
+    "PLR0917",
+    "S101",     # asserts are used only for type narrowing of invariants
+    "N812",     # short module aliases (enums as E, queries as Q)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S107", "S108", "S311", "S603", "S607", "PLW1510", "PLC0415", "N802", "SIM108", "E501"]
+"migrations/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+exclude = ["migrations/versions"]
+
+[[tool.mypy.overrides]]
+module = ["docker", "docker.*", "argon2.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "at(id): links a test to an acceptance test / requirement ID",
+    "nt(id): links a test to a non-functional requirement",
+    "live: calls real external services (opt-in with --run-live)",
+    "sandbox: needs the isolated sandbox daemon (opt-in with --run-sandbox)",
+]
+filterwarnings = ["error::DeprecationWarning:toolkit.*"]
+
+[tool.coverage.run]
+source = ["toolkit"]
+branch = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "pytest-cov>=6.2",
+    "ruff>=0.13",
+    "mypy>=1.18",
+    "pyyaml>=6.0.3",
+]

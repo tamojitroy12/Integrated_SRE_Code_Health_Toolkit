@@ -1,0 +1,59 @@
+{
+ "version": "1.140.0",
+ "errors": [],
+ "results": [
+  {
+   "check_id": "tmp.rules.toolkit.python.weak-hash",
+   "path": "python-app/app.py",
+   "start": {
+    "line": 23,
+    "col": 12
+   },
+   "end": {
+    "line": 23,
+    "col": 50
+   },
+   "extra": {
+    "message": "Weak hash algorithm (MD5/SHA-1) used. Use SHA-256 or better.",
+    "severity": "WARNING",
+    "metadata": {
+     "cwe": "CWE-327",
+     "category": "security",
+     "other": "dropped"
+    },
+    "lines": "requires login"
+   }
+  },
+  {
+   "check_id": "toolkit.python.subprocess-shell-true",
+   "path": "./python-app/app.py",
+   "start": {
+    "line": 40,
+    "col": 12
+   },
+   "end": {
+    "line": 40,
+    "col": 70
+   },
+   "extra": {
+    "message": "subprocess call with shell=True.",
+    "severity": "ERROR",
+    "metadata": {}
+   }
+  },
+  {
+   "check_id": "toolkit.js.eval",
+   "path": "../etc/passwd",
+   "start": {
+    "line": 1
+   },
+   "end": {
+    "line": 1
+   },
+   "extra": {
+    "message": "escape attempt",
+    "severity": "ERROR"
+   }
+  }
+ ]
+}

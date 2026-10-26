@@ -1,0 +1,177 @@
+# SRE + Code Health Toolkit — single-host deployment (DEPLOYMENT.md §2).
+#   cp deploy/.env.example deploy/.env   # then set the secrets
+#   docker compose -f deploy/docker-compose.yml up -d --build
+# Profiles: "demo" (instrumented demo app), "remediation" (isolated sandbox Docker daemon).
+name: sre-code-health
+
+x-app: &app
+  build:
+    context: ../api
+  image: sre-code-health/toolkit:1.0.0
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg://toolkit:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}@postgres:5432/toolkit
+    PROMETHEUS_URL: http://prometheus:9090
+    METRICS_SCRAPE_TOKEN: ${METRICS_SCRAPE_TOKEN:?set METRICS_SCRAPE_TOKEN in deploy/.env}
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+services:
+  postgres:
+    image: postgres:17.6-alpine3.22
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: toolkit
+      POSTGRES_USER: toolkit
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toolkit -d toolkit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    <<: *app
+    command: ["python", "-m", "toolkit.cli", "migrate"]
+    restart: "no"
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [backend]
+
+  api:
+    <<: *app
+    ports: ["${API_BIND:-127.0.0.1}:8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [frontend, backend, egress]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  worker:
+    <<: *app
+    command: ["python", "-m", "toolkit.worker"]
+    volumes: [trivy-cache:/var/cache/trivy, work-tmp:/work]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [backend, egress, sandbox]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9100/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  web:
+    build:
+      context: ../web
+    image: sre-code-health/web:1.0.0
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://api:8000
+    ports: ["${WEB_BIND:-127.0.0.1}:3000:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [frontend]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.163.1
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    environment:
+      OTLP_INGEST_TOKEN: ${OTLP_INGEST_TOKEN:?set OTLP_INGEST_TOKEN in deploy/.env}
+    volumes: ["./otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro"]
+    ports:
+      - "${OTLP_BIND:-127.0.0.1}:4317:4317"
+      - "${OTLP_BIND:-127.0.0.1}:4318:4318"
+    depends_on:
+      prometheus: { condition: service_healthy }
+    networks: [frontend, backend]
+
+  prometheus:
+    image: prom/prometheus:v3.13.4
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        echo -n "$${METRICS_SCRAPE_TOKEN}" > /tmp/scrape_token &&
+        exec /bin/prometheus
+        --config.file=/etc/prometheus/prometheus.yml
+        --storage.tsdb.path=/prometheus
+        --storage.tsdb.retention.time=$${PROMETHEUS_RETENTION:-15d}
+        --web.enable-remote-write-receiver
+    environment:
+      METRICS_SCRAPE_TOKEN: ${METRICS_SCRAPE_TOKEN:?set METRICS_SCRAPE_TOKEN in deploy/.env}
+      PROMETHEUS_RETENTION: ${PROMETHEUS_RETENTION:-15d}
+    volumes: ["./prometheus.yml:/etc/prometheus/prometheus.yml:ro", "promdata:/prometheus"]
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "/bin/wget", "-q", "--tries=1", "-O-", "http://localhost:9090/-/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  demo-app:
+    profiles: [demo]
+    build: { context: ../examples/demo-app }
+    image: sre-code-health/demo-app:1.0.0
+    restart: unless-stopped
+    environment:
+      OTEL_SERVICE_NAME: demo-app
+      DEMO_ENVIRONMENT: dev
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_HEADERS: Authorization=Bearer%20${OTLP_INGEST_TOKEN}
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      DEMO_ADMIN_TOKEN: ${DEMO_ADMIN_TOKEN:-}
+      DEMO_SELF_TRAFFIC_RPS: ${DEMO_SELF_TRAFFIC_RPS:-5}
+    ports: ["127.0.0.1:8080:8080"]
+    networks: [frontend]
+    depends_on: [otel-collector]
+
+  # Isolated container daemon for fix-proposal validation (DEC-010, SECURITY §9.2).
+  # It is NOT the host Docker daemon: it runs its own engine, holds no secrets, shares no volumes
+  # with other services and is reachable only by the worker over the internal "sandbox" network.
+  sandbox-docker:
+    profiles: [remediation]
+    image: docker:28.5.2-dind
+    restart: unless-stopped
+    privileged: true  # required to run a nested daemon; contained to this disposable service
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command: ["--host=tcp://0.0.0.0:2375", "--icc=false"]
+    volumes: [sandbox-data:/var/lib/docker]
+    networks:
+      sandbox: { aliases: [sandbox-docker] }
+      sandbox-egress: {}
+
+volumes:
+  pgdata: {}
+  promdata: {}
+  trivy-cache: {}
+  work-tmp: {}
+  sandbox-data: {}
+
+networks:
+  frontend: {}
+  egress: {}
+  backend: { internal: true }
+  sandbox: { internal: true }
+  sandbox-egress: {}

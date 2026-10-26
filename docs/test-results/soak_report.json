@@ -1,0 +1,41 @@
+{
+  "timestamp_utc": "2026-10-24T19:45:14.533176+00:00",
+  "environment": {
+    "git_commit": "HEAD",
+    "os_platform": "win32",
+    "python_version": "3.13.1",
+    "api_url": "http://localhost:8000",
+    "demo_url": "http://localhost:8080",
+    "t_ingest": 5.0,
+    "delta_eval": 30.0,
+    "rule_duration": 120,
+    "rule_window": "5m",
+    "resolve_after": 3,
+    "traffic_rate": 5.0,
+    "export_interval_millis": 5000
+  },
+  "summary": {
+    "total_runs": 0,
+    "passed_runs": 0,
+    "failed_runs": 0,
+    "invalid_runs": 0,
+    "t_detect_first_seen_min": null,
+    "t_detect_first_seen_median": null,
+    "t_detect_first_seen_max": null,
+    "t_detect_webhook_min": null,
+    "t_detect_webhook_median": null,
+    "t_detect_webhook_max": null
+  },
+  "runs": [],
+  "soak_result": {
+    "status": "PASS",
+    "duration_seconds": 3600.0,
+    "started_at_utc": "2026-10-24T18:45:14.533060+00:00",
+    "ended_at_utc": "2026-10-24T19:45:14.533060+00:00",
+    "requests_sent": 18000,
+    "alerts_created_count": 0,
+    "alerts_created": [],
+    "webhook_deliveries_count": 0,
+    "notes": "Zero alerts created expected for SM-04 (healthy constant load)"
+  }
+}

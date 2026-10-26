@@ -1,0 +1,7 @@
+# Intentionally vulnerable fixtures and generated/third-party code are not the Toolkit's own source.
+examples/
+docs/
+web/node_modules/
+web/.next/
+api/.venv/
+api/tests/fixtures/

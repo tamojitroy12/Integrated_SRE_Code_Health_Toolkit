@@ -1,0 +1,2 @@
+# Accepted findings for the Toolkit's own dependencies. One advisory ID per line, each with a
+# justification and review date. examples/ is excluded via --skip-dirs (intentionally vulnerable fixtures).
